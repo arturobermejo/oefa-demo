@@ -1,0 +1,34 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Reemplazar variables de entorno
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          PARAMETROS_SPREADSHEET_ID: ${{ secrets.PARAMETROS_SPREADSHEET_ID }}
+        run: |
+          # Validar que las variables no están vacías
+          if [ -z "$GOOGLE_API_KEY" ] || [ -z "$SPREADSHEET_ID" ] || [ -z "$PARAMETROS_SPREADSHEET_ID" ]; then
+            echo "❌ ERROR: Algunos secretos están vacíos. Abortando despliegue."
+            exit 1
+          fi
+          
+          # Reemplazar variables en los archivos
+          sed -i "s|__GOOGLE_API_KEY__|$GOOGLE_API_KEY|g" index.html
+          sed -i "s|__SPREADSHEET_ID__|$SPREADSHEET_ID|g" script.js
+          sed -i "s|__PARAMETROS_SPREADSHEET_ID__|$PARAMETROS_SPREADSHEET_ID|g" script.js
+          sed -i "s|__GOOGLE_API_KEY__|$GOOGLE_API_KEY|g" script.js
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .  # Cambia a "dist" si tienes un build
+          branch: gh-pages

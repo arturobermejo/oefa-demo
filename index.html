@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulación del Planefa</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.0/dist/vue.global.prod.js"></script>
+    <style>
+        .steps-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            position: relative;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .step-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .step-item.active .step-number {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .step-item.active .step-text {
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+        .steps-line {
+            position: absolute;
+            top: 17px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background-color: #e9ecef;
+            z-index: 0;
+        }
+
+        .main-title {
+            text-align: center;
+            margin: 2rem 0;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.75rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .subsection-nav {
+            background-color: #f8f9fa;
+            padding: 1.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .steps-group {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step-button {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            color: #6c757d;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+        }
+
+        .step-button.active {
+            color: #0d6efd;
+            border-bottom-color: #0d6efd;
+        }
+
+        .step-number-small {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .step-button.active .step-number-small {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .steps-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #e9ecef;
+            z-index: 0;
+        }
+
+        .steps-progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background-color: #0d6efd;
+            transition: width 0.3s ease;
+        }
+
+        .step-button:hover {
+            color: #0d6efd;
+        }
+
+        .step-button:hover .step-number-small {
+            background-color: #cfe2ff;
+            color: #0d6efd;
+        }
+
+        .btn-subsection {
+            margin-right: 0.5rem;
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+
+        .btn-subsection:last-child {
+            margin-right: 0;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 1.25rem;
+        }
+
+        .action-buttons {
+            white-space: nowrap;
+        }
+
+        .action-button {
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.125rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .action-button i {
+            font-size: 0.875rem;
+        }
+
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-remove {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-detail {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .pagination-container {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-info {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .pagination-buttons .btn {
+            padding: 0.375rem 1rem;
+            margin: 0 0.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pagination-buttons i {
+            font-size: 0.875rem;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0d6efd;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader-text {
+            position: absolute;
+            margin-top: 80px;
+            color: #0d6efd;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .polygon-info {
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .polygon-info:hover {
+            background-color: #e9ecef;
+        }
+
+        .card-body {
+            max-height: calc(85vh - 60px);
+            overflow-y: auto;
+        }
+
+        .table {
+            font-size: 0.75rem;
+            margin-bottom: 0;
+        }
+
+        .table th, .table td {
+            padding: 0.25rem;
+            white-space: nowrap;
+        }
+
+        /* Para hacer la tabla más compacta */
+        .table-sm td, .table-sm th {
+            padding: 0.15rem;
+        }
+
+        /* Para asegurar que las coordenadas se muestren bien */
+        .coord-cell {
+            min-width: 90px;
+        }
+
+        .small {
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loader -->
+<div id="loader" class="loader-container">
+    <div class="loader"></div>
+    <div class="loader-text">Cargando datos...</div>
+</div>
+
+<div id="app" class="container mt-5">
+    <h1 class="main-title">Formulación del Planefa (Planefa POI)</h1>
+
+    <!-- Navegación de pasos -->
+    <div class="steps-nav">
+        <div class="steps-line"></div>
+        <div class="step-item" :class="{ active: currentStep === 1 }" @click="setCurrentStep(1)">
+            <div class="step-number">1</div>
+            <div class="step-text">Problemática</div>
+        </div>
+        <div class="step-item" :class="{ active: currentStep === 2 }" @click="setCurrentStep(2)">
+            <div class="step-number">2</div>
+            <div class="step-text">Programación</div>
+        </div>
+    </div>
+
+    <!-- Paso 1: Problemática -->
+    <div v-if="currentStep === 1" class="mt-3">
+        <h3 class="section-title">Problemática</h3>
+        <div class="subsection-nav">
+            <div class="steps-group">
+                <div class="steps-progress">
+                    <div class="steps-progress-bar" :style="{ width: getProgressWidth('problematica') }"></div>
+                </div>
+                <button class="step-button" :class="{ active: currentSubStep === 1.1 }" @click="selectSubStep(1.1)">
+                    <span class="step-number-small">1</span>
+                    Sinada
+                </button>
+                <button class="step-button" :class="{ active: currentSubStep === 1.2 }" @click="selectSubStep(1.2)">
+                    <span class="step-number-small">2</span>
+                    Ospa
+                </button>
+                <button class="step-button" :class="{ active: currentSubStep === 1.3 }" @click="selectSubStep(1.3)">
+                    <span class="step-number-small">3</span>
+                    Ufafema I
+                </button>
+                <button class="step-button" :class="{ active: currentSubStep === 1.4 }" @click="selectSubStep(1.4)">
+                    <span class="step-number-small">4</span>
+                    Ufafema II
+                </button>
+                <button class="step-button" :class="{ active: currentSubStep === 1.5 }" @click="selectSubStep(1.5)">
+                    <span class="step-number-small">5</span>
+                    Insumos de la EFA
+                </button>
+            </div>
+        </div>
+
+        <!-- Subpaso seleccionados -->
+        <div v-if="currentSubStep" class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0">{{ currentSubStep }} Data Table</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <button v-if="currentSubStep === 1.5" class="btn btn-primary" @click="openModal">Nuevo registro</button>
+                        <button class="btn btn-outline-primary" @click="openColumnConfig">
+                            <i class="bi bi-gear"></i> Configurar Columnas
+                        </button>
+                    </div>
+                </div>
+                <input type="text" class="form-control mb-3" v-model="searchQuery" placeholder="Buscar...">
+                
+                <!-- Filtros dinámicos -->
+                <div v-if="currentFilters.length" class="row g-3 mb-3">
+                    <div v-for="filter in currentFilters" :key="filter.column" class="col-md-6 col-lg-4">
+                        <label :for="filter.column" class="form-label">{{ filter.column }}</label>
+                        <select v-model="filters[filter.column]" class="form-select" :id="filter.column">
+                            <option value="">Todos</option>
+                            <option v-for="value in filter.values" :key="value" :value="value">{{ value }}</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Tabla de datos -->
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 60px;">#</th>
+                            <th v-for="header in currentHeaders">{{ header }}</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(row, index) in paginatedData" :key="index">
+                            <td class="text-center">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                            <td v-for="(cell, cellIndex) in row">{{ cell }}</td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <button v-if="!isSelected(index)" @click="toggleSelection(index)" class="btn action-button btn-add" title="Agregar">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                    <button v-if="isSelected(index)" @click="toggleSelection(index)" class="btn action-button btn-remove" title="Quitar">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <button @click="openDetailModal(row)" class="btn action-button btn-detail" title="Ver detalles">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Sección de elementos seleccionados -->
+                <div v-if="selectedItems.length > 0" class="card mt-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Elementos Seleccionados
+                            </h5>
+                            <span class="badge bg-primary">{{ selectedItems.length }} elementos</span>
+                        </div>
+                        <div class="selected-items-list">
+                            <div v-for="(item, index) in selectedItems" 
+                                 :key="index" 
+                                 class="selected-item d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded">
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-primary mb-1">
+                                        {{ sheetConfig[item.split('-')[0]]?.name || item.split('-')[0] }}
+                                    </div>
+                                    <div class="text-muted small">
+                                        {{ getSelectedItemDetails(item) }}
+                                    </div>
+                                </div>
+                                <button @click="deselectItem(index)" 
+                                        class="btn btn-outline-danger btn-sm ms-3">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                <div class="pagination-container d-flex justify-content-between align-items-center">
+                    <span class="pagination-info">
+                        <i class="bi bi-file-text me-2"></i>
+                        {{ totalItems }} items encontrados
+                    </span>
+                    <div class="pagination-buttons">
+                        <button class="btn btn-outline-primary" @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
+                            <i class="bi bi-chevron-left"></i>
+                            Anterior
+                        </button>
+                        <button class="btn btn-outline-primary" @click="changePage(currentPage + 1)" :disabled="currentPage >= totalPages">
+                            Siguiente
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 2: Programación -->
+    <div v-if="currentStep === 2" class="mt-3">
+        <h3 class="section-title">Programación</h3>
+        <div class="subsection-nav">
+            <div class="steps-group">
+                <div class="steps-progress">
+                    <div class="steps-progress-bar" :style="{ width: getProgressWidth('programacion') }"></div>
+                </div>
+                <button class="step-button" :class="{ active: currentProgramacionStep === 2.1 }" @click="selectProgramacionStep(2.1)">
+                    <span class="step-number-small">1</span>
+                    Supervisión
+                </button>
+                <button class="step-button" :class="{ active: currentProgramacionStep === 2.2 }" @click="selectProgramacionStep(2.2)">
+                    <span class="step-number-small">2</span>
+                    Evaluación
+                </button>
+            </div>
+        </div>
+
+        <!-- Subpaso Supervisión -->
+        <div v-if="currentProgramacionStep === 2.1" class="mt-3">
+            <h4>Supervisión</h4>
+            
+            <!-- Formulario de Programación de supervisión -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Programación de supervisión</h5>
+                    
+                    <!-- Radio button para supervisión orientativa -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label d-block">¿Se trata de una supervisión orientativa?</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" v-model="supervisionData.esOrientativa" value="true" id="orientativaSi">
+                                <label class="form-check-label" for="orientativaSi">Sí</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" v-model="supervisionData.esOrientativa" value="false" id="orientativaNo">
+                                <label class="form-check-label" for="orientativaNo">No</label>
+                            </div>
+                        </div>
+
+                        <!-- Select para código de problema -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label">Código de problema</label>
+                            <select class="form-select" v-model="supervisionData.codigoProblema">
+                                <option value="">Seleccione un problema</option>
+                                <option v-for="item in selectedItems" :key="item" :value="item">{{ item }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Select para subsector -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label">Subsector</label>
+                            <select class="form-select" v-model="supervisionData.subsector">
+                                <option value="">Seleccione un subsector</option>
+                                <option v-for="subsector in subsectores" :key="subsector" :value="subsector">{{ subsector }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Administrados y unidades fiscalizables -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Administrados y unidades fiscalizables</h5>
+                    <button class="btn btn-primary mb-3" @click="openAddModal">
+                        <i class="bi bi-plus-circle"></i> Agregar
+                    </button>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nro</th>
+                                <th>Administrado</th>
+                                <th>Unidad fiscalizable</th>
+                                <th v-for="mes in meses" :key="mes">{{ mes }}</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in administradosData" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ item.administrado }}</td>
+                                <td>{{ item.unidadFiscalizable }}</td>
+                                <td v-for="mes in meses" :key="mes">
+                                    <input type="number" class="form-control form-control-sm" v-model="item.programacionMensual[mes]">
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm me-1" @click="editItem(index)">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" @click="deleteItem(index)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subpaso Evaluación -->
+        <div v-if="currentProgramacionStep === 2.2" class="mt-3">
+            <h4>Evaluación</h4>
+            <p>Contenido de Evaluación</p>
+        </div>
+    </div>
+
+    <!-- Modal de detalles -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalLabel">Detalle de la Fila</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div v-for="(value, key) in selectedRowDetails" :key="key">
+                        <template v-if="key === 'Polígonos' && Array.isArray(value) && value.length > 0">
+                            <h6 class="mt-4 mb-3">{{ key }}</h6>
+                            <div v-for="(poligono, index) in value" :key="index" class="mb-4">
+                                <h6 class="mb-2">{{ poligono.titulo }}</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Zona</th>
+                                                <th>Este (m)</th>
+                                                <th>Norte (m)</th>
+                                                <th>Alt (msnm)</th>
+                                                <th>Lat</th>
+                                                <th>Lng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(punto, pIndex) in poligono.puntos" :key="pIndex">
+                                                <td>{{ punto.zone }}</td>
+                                                <td>{{ punto.este }}</td>
+                                                <td>{{ punto.norte }}</td>
+                                                <td>{{ punto.altitud }}</td>
+                                                <td>{{ punto.lat.toFixed(6) }}°</td>
+                                                <td>{{ punto.lng.toFixed(6) }}°</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <p><strong>{{ key }}:</strong> {{ value }}</p>
+                        </template>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar administrado -->
+    <div class="modal fade" id="administradoModal" tabindex="-1" aria-labelledby="administradoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="administradoModalLabel">{{ modalTitle }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Buscar Administrado</label>
+                        <input type="text" class="form-control" v-model="searchAdministrado" placeholder="Buscar...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Unidad Fiscalizable</label>
+                        <input type="text" class="form-control" v-model="newItem.unidadFiscalizable" placeholder="Ingrese unidad fiscalizable">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @click="saveItem">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para configurar columnas -->
+    <div class="modal fade" id="columnConfigModal" tabindex="-1" aria-labelledby="columnConfigModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="columnConfigModalLabel">Configurar Columnas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h6>Columnas Visibles</h6>
+                        <div v-for="header in allHeaders" :key="header" class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   :id="'visible-' + header"
+                                   v-model="visibleColumns"
+                                   :value="header">
+                            <label class="form-check-label" :for="'visible-' + header">
+                                {{ header }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6>Columnas Filtrables</h6>
+                        <div v-for="header in visibleColumns" :key="header" class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   :id="'filter-' + header"
+                                   v-model="filterableColumns"
+                                   :value="header">
+                            <label class="form-check-label" :for="'filter-' + header">
+                                {{ header }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @click="saveColumnConfig">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- El modal -->
+    <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalLabel">Insumos de la EFA</h5>
+                    <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs navigation -->
+                    <ul class="nav nav-tabs mb-3" id="parametrosTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="form-tab" data-bs-toggle="tab" data-bs-target="#form-content" type="button" role="tab" aria-controls="form-content" aria-selected="true">
+                                Parámetros
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab" aria-controls="map-content" aria-selected="false">
+                                Mapa poligonal
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tabs content -->
+                    <div class="tab-content" id="parametrosTabContent">
+                        <!-- Formulario tab -->
+                        <div class="tab-pane fade show active" id="form-content" role="tabpanel" aria-labelledby="form-tab">
+                            <form @submit.prevent="saveForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Área responsable <span class="text-danger">*</span></label>
+                                    <select class="form-select" v-model="selectedItem.areaResponsable" required>
+                                        <option value="">--Seleccione--</option>
+                                        <option v-for="area in parametrosListas.areasResponsables" :key="area" :value="area">{{ area }}</option>
+                                    </select>
+                                    <div class="text-danger small" v-if="!selectedItem.areaResponsable">Dato requerido</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Agente contaminante <span class="text-danger">*</span></label>
+                                    <select class="form-select" v-model="selectedItem.agenteContaminante" required>
+                                        <option value="">--Seleccione--</option>
+                                        <option v-for="agente in parametrosListas.agentesContaminantes" :key="agente" :value="agente">{{ agente }}</option>
+                                    </select>
+                                    <div class="text-danger small" v-if="!selectedItem.agenteContaminante">Dato requerido</div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Componente ambiental <span class="text-danger">*</span></label>
+                                        <select class="form-select" v-model="selectedItem.componenteAmbiental" required>
+                                            <option value="">--Seleccione--</option>
+                                            <option v-for="comp in parametrosListas.componentesAmbientales" :key="comp" :value="comp">{{ comp }}</option>
+                                        </select>
+                                        <div class="text-danger small" v-if="!selectedItem.componenteAmbiental">Dato requerido</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Subcomponente ambiental</label>
+                                        <select class="form-select" v-model="selectedItem.subcomponenteAmbiental">
+                                            <option value="">--Seleccione--</option>
+                                            <option v-for="subcomp in parametrosListas.subcomponentesAmbientales" :key="subcomp" :value="subcomp">{{ subcomp }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Actividad económica <span class="text-danger">*</span></label>
+                                        <select class="form-select" v-model="selectedItem.actividadEconomica" required>
+                                            <option value="">--Seleccione--</option>
+                                            <option v-for="act in parametrosListas.actividadesEconomicas" :key="act" :value="act">{{ act }}</option>
+                                        </select>
+                                        <div class="text-danger small" v-if="!selectedItem.actividadEconomica">Dato requerido</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Subactividad económica</label>
+                                        <select class="form-select" v-model="selectedItem.subactividadEconomica">
+                                            <option value="">--Seleccione--</option>
+                                            <option v-for="subact in subactividadesDisponibles" :key="subact" :value="subact">{{ subact }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Etapa actividad</label>
+                                    <select class="form-select" v-model="selectedItem.etapaActividad">
+                                        <option value="">--Seleccione--</option>
+                                        <option v-for="etapa in parametrosListas.etapasActividad" :key="etapa" :value="etapa">{{ etapa }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Factor asociado</label>
+                                    <select class="form-select" v-model="selectedItem.factorAsociado">
+                                        <option value="">--Seleccione--</option>
+                                        <option v-for="factor in parametrosListas.factoresAsociados" :key="factor" :value="factor">{{ factor }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Hechos</label>
+                                    <textarea class="form-control" v-model="selectedItem.hechos" rows="4"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Mapa tab -->
+                        <div class="tab-pane fade" id="map-content" role="tabpanel" aria-labelledby="map-tab">
+                            <div class="row h-100">
+                                <!-- Panel de información -->
+                                <div class="col-md-3">
+                                    <div class="card h-100">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">Polígonos</h5>
+                                            <span class="badge bg-primary">{{selectedItem.polygons.length}}</span>
+                                        </div>
+                                        <div class="card-body" style="overflow-y: auto;">
+                                            <div v-for="(polygon, index) in selectedItem.polygons" :key="index" class="mb-3">
+                                                <div class="polygon-info border rounded p-2">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 class="mb-0">Polígono {{index + 1}}</h6>
+                                                        <button class="btn btn-sm btn-danger" @click="removePolygon(index)">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm table-bordered mb-0">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th>Zona</th>
+                                                                    <th>Este (m)</th>
+                                                                    <th>Norte (m)</th>
+                                                                    <th>Alt (msnm)</th>
+                                                                    <th>Coord</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="small">
+                                                                <tr v-for="point in polygon.points" :key="point.id">
+                                                                    <td>{{point.zone}}</td>
+                                                                    <td>{{point.este}}</td>
+                                                                    <td>{{point.norte}}</td>
+                                                                    <td>{{point.altitud}}</td>
+                                                                    <td>
+                                                                        <span class="d-block">{{point.lat.toFixed(6)}}°</span>
+                                                                        <span class="d-block">{{point.lng.toFixed(6)}}°</span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Mapa -->
+                                <div class="col-md-9">
+                                    <div id="map" style="height: 85vh;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="closeModal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" @click="saveForm" :disabled="!isFormValid">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (required for modals) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Agregar Bootstrap JS y sus dependencias -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- App Script -->
+<script src="script.js"></script>
+
+<!-- Agregar el script de Google Maps antes del cierre del body -->
+<script src="https://maps.googleapis.com/maps/api/js?key=__GOOGLE_API_KEY__&libraries=drawing"></script>
+<!-- Añadir la biblioteca proj4js para las conversiones de coordenadas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+
+</body>
+</html>
